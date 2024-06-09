@@ -9,7 +9,7 @@ screen = pygame.display.set_mode((800, 500), 0, 32)
 
 GRAVITY = 0.5
 JUMP_VELOCITY = -4
-BUILDING_SPEED = 3
+PIPE_SPEED = 3
 GAP_SIZE = 150
 jump_sound = pygame.mixer.Sound('./sounds/Jump.wav')
 score_color = (255, 255, 255)
@@ -20,10 +20,10 @@ add_score = pygame.mixer.Sound("./sounds/Coin.wav")
 score_font = pygame.font.SysFont('Arial', 50)
 losing_song = pygame.mixer.Sound("./sounds/Womp Womp Womp sound effect.wav")
 bird = pygame.image.load('./images/Flappy-Bird-PNG-File.png')
-background = pygame.image.load("./images/bg.png")
+background = pygame.image.load("./images/background.png")
 bird = pygame.transform.scale(bird, (100, 50))
-building = pygame.image.load('./images/building.png')
-upside_down_building = pygame.image.load("./images/upsideDownBuilding.png")
+pipe = pygame.image.load('./images/pipe.png')
+upside_down_pipe = pygame.image.load("./images/upside_down_pipe.png")
 
 pygame.mixer.music.load('./sounds/BABABOOEY 2.wav')
 background = pygame.transform.scale(background, (800, 500))
@@ -33,14 +33,14 @@ lose_sound = pygame.mixer.Sound('./sounds/Oops.wav')
 game_over = False
 x, y = (0, 200)
 y_velocity = 0
-building_x = 800
-upside_down_building_x = 800
-bird_passed_buildings = False
+pipe_x = 800
+bird_passed_pipes = False
 clock = pygame.time.Clock()
 losing_font = pygame.font.SysFont('Arial', 50)
 losing_text = losing_font.render('Game Over', True, losing_color)
 
 def losing_screen():
+    global game_over
     screen.fill((0, 0, 0))
     pygame.mixer.music.stop()
     screen.blit(losing_text, (250, 200))
@@ -50,21 +50,21 @@ def losing_screen():
     losing_song.play()
     time.sleep(4)
     game_over = True
-def new_building_sizes():
-    bottom_building_height = random.randint(100, 300)
-    top_building_height = 500 - GAP_SIZE - bottom_building_height
-    return bottom_building_height, top_building_height
 
-
-bottom_building_height, top_building_height = new_building_sizes()
+def new_pipe_sizes():
+    bottom_pipe_height = random.randint(100, 300)
+    top_pipe_height = 500 - GAP_SIZE - bottom_pipe_height
+    return bottom_pipe_height, top_pipe_height
+bottom_pipe_height, top_pipe_height = new_pipe_sizes()
 bird_rect = bird.get_rect(topleft=(x, y))
-building_rect = building.get_rect(topleft=(building_x, 500 - bottom_building_height))
-upside_down_building_rect = upside_down_building.get_rect(topleft=(upside_down_building_x, 0))
+pipe_rect = pipe.get_rect(topleft=(pipe_x, 500 - bottom_pipe_height))
+upside_down_pipe_rect = upside_down_pipe.get_rect(topleft=(pipe_x, 0))
+
 while not game_over:
-    building = pygame.transform.scale(building, (100, bottom_building_height))
-    upside_down_building = pygame.transform.scale(upside_down_building, (100, top_building_height))
-    print(score)
+    pipe = pygame.transform.scale(pipe, (100, bottom_pipe_height))
+    upside_down_pipe = pygame.transform.scale(upside_down_pipe, (100, top_pipe_height))
     score_text = score_font.render(f'Score: {score}', True, score_color)
+    pipe_create = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
@@ -81,44 +81,38 @@ while not game_over:
         y = 0
     if x < 0:
         x = 0
+
     y += y_velocity
     y_velocity += GRAVITY
 
-    building_x -= BUILDING_SPEED
-    building_create = False
+    pipe_x -= PIPE_SPEED
 
-    if building_x < -100:
-        building_x = 800
-        bottom_building_height, top_building_height = new_building_sizes()
-        print("generate new building")
-        bird_passed_buildings = False
-        building_create = True
+    if pipe_x < -100:
+        pipe_x = 800
+        bottom_pipe_height, top_pipe_height = new_pipe_sizes()
+        bird_passed_pipes = False
+        pipe_create = True
 
-    if upside_down_building_x < -100:
-        upside_down_building_x = 800
-        print("generate new upside-down building")
-        bird_passed_buildings = False
-        building_create = True
-
-    if building_create:
+    if pipe_create:
         score += 1
+
+
 
     bird_rect.topleft = (x, y)
-    building_rect = building.get_rect(topleft=(building_x, 500 - bottom_building_height))
-    upside_down_building_rect = upside_down_building.get_rect(topleft=(upside_down_building_x, 0))
-    if building_rect.right < bird_rect.left and not bird_passed_buildings:
+    pipe_rect = pipe.get_rect(topleft=(pipe_x, 500 - bottom_pipe_height))
+    upside_down_pipe_rect = upside_down_pipe.get_rect(topleft=(pipe_x, 0))
+    if not bird_passed_pipes and bird_rect.left > pipe_rect.right:
         add_score.play()
         score += 1
-        bird_passed_buildings = True
-
-    if bird_rect.colliderect(building_rect) or bird_rect.colliderect(upside_down_building_rect):
+        bird_passed_pipes = True
+    if bird_rect.colliderect(pipe_rect) or bird_rect.colliderect(upside_down_pipe_rect):
         losing_screen()
     screen.fill((0, 0, 0))
     screen.blit(background, (0, 0))
     screen.blit(score_text, (0, 0))
     screen.blit(bird, bird_rect.topleft)
-    screen.blit(upside_down_building, (building_x, 0))
-    screen.blit(building, (building_x, 500 - bottom_building_height))
+    screen.blit(upside_down_pipe, (pipe_x, 0))
+    screen.blit(pipe, (pipe_x, 500 - bottom_pipe_height))
     pygame.display.update()
     clock.tick(60)
 pygame.quit()
