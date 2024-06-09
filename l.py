@@ -39,6 +39,17 @@ bird_passed_buildings = False
 clock = pygame.time.Clock()
 losing_font = pygame.font.SysFont('Arial', 50)
 losing_text = losing_font.render('Game Over', True, losing_color)
+
+def losing_screen():
+    screen.fill((0, 0, 0))
+    pygame.mixer.music.stop()
+    screen.blit(losing_text, (250, 200))
+    pygame.display.update()
+    lose_sound.play()
+    time.sleep(2)
+    losing_song.play()
+    time.sleep(4)
+    game_over = True
 def new_building_sizes():
     bottom_building_height = random.randint(100, 300)
     top_building_height = 500 - GAP_SIZE - bottom_building_height
@@ -65,7 +76,7 @@ while not game_over:
     if x > (screen.get_width() - bird.get_width()):
         x = screen.get_width() - bird.get_width()
     if y > (screen.get_height() - bird.get_height()):
-        game_over = True
+        losing_screen()
     if y < 0:
         y = 0
     if x < 0:
@@ -101,15 +112,7 @@ while not game_over:
         bird_passed_buildings = True
 
     if bird_rect.colliderect(building_rect) or bird_rect.colliderect(upside_down_building_rect):
-        screen.fill((0, 0, 0))
-        pygame.mixer.music.stop()
-        screen.blit(losing_text, (250, 200))
-        pygame.display.update()
-        lose_sound.play()
-        time.sleep(2)
-        losing_song.play()
-        time.sleep(4)
-        game_over = True
+        losing_screen()
     screen.fill((0, 0, 0))
     screen.blit(background, (0, 0))
     screen.blit(score_text, (0, 0))
