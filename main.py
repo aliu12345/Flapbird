@@ -24,10 +24,12 @@ background = pygame.image.load("./images/background.png")
 bird = pygame.transform.scale(bird, (100, 50))
 pipe = pygame.image.load('./images/pipe.png')
 upside_down_pipe = pygame.image.load("./images/upside_down_pipe.png")
-
-pygame.mixer.music.load('./sounds/BABABOOEY 2.wav')
+load_final_score_color = (255, 255, 255)
+pygame.mixer.music.load('./sounds/flappy_bird_music.wav')
 background = pygame.transform.scale(background, (800, 500))
 pygame.mixer.music.play(-1)
+load_final_score_font = pygame.font.SysFont('Arial', 20)
+
 vine_boom = pygame.mixer.Sound("./sounds/Vine boom sound effect slightly bass boosted.wav")
 lose_sound = pygame.mixer.Sound('./sounds/Oops.wav')
 game_over = False
@@ -43,7 +45,8 @@ def losing_screen():
     global game_over
     screen.fill((0, 0, 0))
     pygame.mixer.music.stop()
-    screen.blit(losing_text, (250, 200))
+    screen.blit(losing_text, (265, 200))
+    screen.blit(load_final_score_text, (310, 400))
     pygame.display.update()
     lose_sound.play()
     time.sleep(2)
@@ -65,6 +68,7 @@ while not game_over:
     upside_down_pipe = pygame.transform.scale(upside_down_pipe, (100, top_pipe_height))
     score_text = score_font.render(f'Score: {score}', True, score_color)
     pipe_create = False
+    load_final_score_text = load_final_score_font.render(f'Your score was {score}', True, load_final_score_color)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
@@ -95,8 +99,6 @@ while not game_over:
 
     if pipe_create:
         score += 1
-
-
 
     bird_rect.topleft = (x, y)
     pipe_rect = pipe.get_rect(topleft=(pipe_x, 500 - bottom_pipe_height))
