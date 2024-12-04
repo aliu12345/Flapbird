@@ -93,6 +93,7 @@ class FlappyBirdGame:
             if self.pipe_manager.check_collisions(self.bird.rect):
                 self.end_game()  # End the game if the bird collides
 
+
     def check_collisions(self):
         if self.bird.y > SCREEN_HEIGHT - self.bird.rect.height or self.bird.y < 0:
             self.end_game()
@@ -107,6 +108,7 @@ class FlappyBirdGame:
 
     def end_game(self):
         self.game_over = True
+        print("game over")
         self.assets.stop_music()
 
     def check_collisions(self, bird_rect):
@@ -115,14 +117,17 @@ class FlappyBirdGame:
                 return True  # Collision detected
         return False
 
-
-    def draw(self):
+    def redraw(self):
         screen.blit(self.assets.background, (0, 0))
         self.pipe_manager.draw(screen)
         self.bird.draw(screen)
         self.draw_score()
+
+    def draw(self):
+        self.redraw()
         self.draw_pause_button()  # Draw pause button
         pygame.display.update()
+
 
     def draw_score(self):
         score_text = self.assets.score_font.render(f"Score: {self.score}", True, WHITE)
@@ -137,31 +142,40 @@ class FlappyBirdGame:
         text_surface = self.assets.final_score_font.render(button_text, True, WHITE)
         screen.blit(text_surface, (self.pause_button.x + (self.pause_button.width - text_surface.get_width()) // 2,
                                    self.pause_button.y + (self.pause_button.height - text_surface.get_height()) // 2))
-
-    def draw_game_over_screen(self):
-        screen.fill((0, 0, 0))
-        game_over_text = self.assets.losing_font.render("Game Over", True, RED)
-        final_score_text = self.assets.final_score_font.render(f"Your score: {self.score}", True, WHITE)
-
-        screen.blit(game_over_text, (SCREEN_WIDTH / 2 - game_over_text.get_width() / 2, 150))
-        screen.blit(final_score_text, (SCREEN_WIDTH / 2 - final_score_text.get_width() / 2, 250))
-
-        # Draw "Start Over" button
+    def draw_game_over_buttons(self):
         pygame.draw.rect(screen, START_OVER_BUTTON_COLOR, self.assets.start_over_button)
         screen.blit(self.assets.start_over_button_text, (
             self.assets.start_over_button.x + (
-                        self.assets.start_over_button.width - self.assets.start_over_button_text.get_width()) // 2,
+                    self.assets.start_over_button.width - self.assets.start_over_button_text.get_width()) // 2,
             self.assets.start_over_button.y + (
-                        self.assets.start_over_button.height - self.assets.start_over_button_text.get_height()) // 2
+                    self.assets.start_over_button.height - self.assets.start_over_button_text.get_height()) // 2
         ))
 
         # Draw "Quit" button
         pygame.draw.rect(screen, BUTTON_COLOR, self.assets.quit_button)
-        screen.blit(self.assets.quit_button_text, (
-            self.assets.quit_button.x + (self.assets.quit_button.width - self.assets.quit_button_text.get_width()) // 2,
-            self.assets.quit_button.y + (
-                        self.assets.quit_button.height - self.assets.quit_button_text.get_height()) // 2
-        ))
+        screen.blit(self.assets.quit_button_text,
+                    (((
+                                  self.assets.quit_button.width - self.assets.quit_button_text.get_width()) / 2 + self.assets.quit_button.left),
+                     (SCREEN_HEIGHT - self.assets.quit_button_text.get_height())))
+    def dim_screen(self):
+        dim_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)  # Use SRCALPHA for transparency
+        dim_surface.fill((0, 0, 0, 128))  # RGBA: Black color with 128 alpha for transparency
+        screen.blit(dim_surface, (0, 0))
+
+    def draw_final_score_text(self):
+        final_score_text = self.assets.final_score_font.render(f"Your score: {self.score}", True, WHITE)
+        screen.blit(final_score_text, (SCREEN_WIDTH / 2 - final_score_text.get_width() / 2, 250))
+    def draw_game_over_text(self):
+        game_over_text = self.assets.losing_font.render("Game Over", True, RED)
+        screen.blit(game_over_text, (SCREEN_WIDTH / 2 - game_over_text.get_width() / 2, 150))
+    def draw_game_over_screen(self):
+        # Redraw the previous frame and dim it
+        self.redraw()
+        self.dim_screen()
+        self.draw_final_score_text()
+        self.draw_game_over_text()
+        self.draw_game_over_buttons()
+
 
     def run(self):
         while self.running:
