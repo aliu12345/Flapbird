@@ -1,5 +1,3 @@
-
-
 import pygame
 import Bird
 import PipeManager
@@ -154,9 +152,8 @@ class FlappyBirdGame:
         # Draw "Quit" button
         pygame.draw.rect(screen, BUTTON_COLOR, self.assets.quit_button)
         screen.blit(self.assets.quit_button_text,
-                    (((
-                                  self.assets.quit_button.width - self.assets.quit_button_text.get_width()) / 2 + self.assets.quit_button.left),
-                     (SCREEN_HEIGHT - self.assets.quit_button_text.get_height())))
+                    (((self.assets.quit_button.width - self.assets.quit_button_text.get_width()) / 2 + self.assets.quit_button.x), (self.assets.quit_button.height - self.assets.quit_button_text.get_height()) / 2 + self.assets.quit_button.y))
+
     def dim_screen(self):
         dim_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)  # Use SRCALPHA for transparency
         dim_surface.fill((0, 0, 0, 128))  # RGBA: Black color with 128 alpha for transparency

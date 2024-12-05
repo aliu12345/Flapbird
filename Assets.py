@@ -23,7 +23,7 @@ class Assets:
 
         # Define separate positions for buttons
         self.quit_button = pygame.Rect((SCREEN_WIDTH - 100), SCREEN_HEIGHT - 50, 100, 50)
-        self.start_over_button = pygame.Rect((SCREEN_WIDTH + 50) // 2, 400, 100, 50)
+        self.start_over_button = pygame.Rect((SCREEN_WIDTH - 445), 350, 100, 50)
 
         # Render button text
         self.quit_button_text = self.final_score_font.render("Quit", True, WHITE)
