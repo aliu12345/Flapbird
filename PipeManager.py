@@ -65,28 +65,24 @@ class PipeManager:
         # Flatten and return all pipe rectangles for collision checks
         return [pipe for pair in self.pipes for pipe in pair]
 
-
-    def update(self, bird_rect):
-        # Move pipes horizontally
+    def move_pipe_horizontally(self):
         for i in range(len(self.pipes)):
             self.pipes[i] = (
                 self.pipes[i][0].move(-self.pipe_speed, 0),
                 self.pipes[i][1].move(-self.pipe_speed, 0),
                 self.pipes[i][2],  # Preserve the passed flag
             )
-
-        # Remove pipes that have moved off screen
+    def remove_pipes(self):
         self.pipes = [pair for pair in self.pipes if pair[0].right > 0]
 
-        # Add new pipe pair if needed
+    def add_new_pipe(self):
         if not self.pipes or self.pipes[-1][0].x < SCREEN_WIDTH - 200:
             self.add_pipe_pair()
 
-        # Move pipes vertically
+    def move_pipe_vertically(self):
         self.vertical_offset += self.vertical_speed * self.vertical_direction
         if abs(self.vertical_offset) > self.max_vertical_movement:
             self.vertical_direction *= -1  # Reverse direction when hitting limit
-
 
         for i in range(len(self.pipes)):
             pipe_top, pipe_bottom, passed = self.pipes[i]
@@ -104,8 +100,7 @@ class PipeManager:
                     passed,
                 )
 
-
-        # Check if the bird has passed any pipes
+    def increment_score(self, bird_rect):
         score_increment = 0
         for i in range(len(self.pipes)):
             pipe_top, pipe_bottom, passed = self.pipes[i]
@@ -114,6 +109,21 @@ class PipeManager:
                 score_increment += 1
 
         return score_increment
+
+
+    def update(self, bird_rect):
+
+        self.move_pipe_horizontally()
+
+        self.remove_pipes()
+
+        # Add new pipe pair if needed
+        self.add_new_pipe()
+
+        # Move pipes vertically
+        self.move_pipe_vertically()
+        # Check if the bird has passed any pipes
+        return self.increment_score(bird_rect)
 
     def get_pipes(self):
         bottom_pipe = self.pipe_image.get_rect(topleft=(self.pipe_x, SCREEN_HEIGHT - self.bottom_pipe_height))
